@@ -1,0 +1,12 @@
+import test from "node:test";
+import assert from "node:assert/strict";
+import {SIGMA,EARTH_RADIUS_M,REGIONS,DEFAULT,radiativeFlux,radiativeRatio,distanceKm,simulate} from "./model.js";
+test("known Earth radius and Stefan Boltzmann dimensional check",()=>{assert.equal(EARTH_RADIUS_M,6371000);assert.ok(Math.abs(radiativeFlux(300)-SIGMA*300**4)<1e-8)});
+test("higher absolute temperature increases outgoing thermal radiation",()=>{assert.ok(radiativeRatio(76)>radiativeRatio(0));assert.ok(radiativeRatio(-5)<1)});
+test("haversine zero distance and quarter circumference",()=>{assert.equal(distanceKm({lat:0,lon:0},{lat:0,lon:0}),0);assert.ok(Math.abs(distanceKm({lat:0,lon:0},{lat:0,lon:90})-Math.PI*6371/2)<1)});
+test("regional demand shares sum to 1",()=>{assert.ok(Math.abs(REGIONS.reduce((s,r)=>s+r.share,0)-1)<1e-12)});
+test("baseline is finite and nonnegative",()=>{const x=simulate(DEFAULT);assert.equal(x.regions.length,9);assert.ok(x.totalCompute>0);assert.ok(Number.isFinite(x.totalExposure));assert.equal(x.globalPowerTWh,415)});
+test("hotter temperatures reduce effective compute if cooling unchanged",()=>{const a=simulate(DEFAULT),b=simulate({...DEFAULT,warming:30});assert.ok(b.totalCompute<a.totalCompute);assert.ok(b.totalExposure>=a.totalExposure)});
+test("better cooling does not reduce available compute",()=>{const a=simulate({...DEFAULT,warming:25,cooling:0}),b=simulate({...DEFAULT,warming:25,cooling:100});assert.ok(b.totalCompute>=a.totalCompute)});
+test("grid disruption lowers effective compute",()=>{const a=simulate({...DEFAULT,gridStress:0}),b=simulate({...DEFAULT,gridStress:100});assert.ok(b.totalCompute<a.totalCompute)});
+test("governance and hardening bounded",()=>{for(const x of simulate({...DEFAULT,cooperation:0,gridStress:100,hardening:0}).regions){assert.ok(x.grid>=0&&x.grid<=1);assert.ok(x.governance>=0&&x.governance<=1)}});
