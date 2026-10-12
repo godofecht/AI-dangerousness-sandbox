@@ -14,7 +14,7 @@ Every scenario output is conditional on the selected parameters. The representat
 
 ## How to run
 
-Open `index.html` directly, or serve this repository using any static HTTP server. The app attempts to load world boundaries from public `world-atlas` CDN; a schematic fallback is provided if that download fails. No tracking or backend.
+Open `index.html` directly, or serve this repository using any static HTTP server. The app attempts to load geographic boundaries from the public `datasets/geo-countries` GeoJSON repository; a schematic fallback is provided if that download fails. No tracking or backend.
 
 ## Claims protocol
 
@@ -24,4 +24,10 @@ Testable initial propositions: hotter Earth has higher outgoing blackbody radiat
 
 ## Deployment
 
-GitHub Pages: Settings → Pages → Build and deployment → Deploy from a branch → `main` → `/ (root)`. The expected URL above is only live after enabling Pages. 
+GitHub Pages: Settings → Pages → Build and deployment → Deploy from a branch → `main` → `/ (root)`. The Pages environment is configured to publish directly from the `main` branch. A separate GitHub Actions workflow runs all model and experiment tests; it does not compete with the native Pages publisher. 
+
+## Sensitivity laboratory
+
+Open [the experiment dashboard](https://godofecht.github.io/AI-dangerousness-sandbox/experiments.html) to sweep one input through 101 evenly spaced counterfactuals, compare normalized compute with outgoing radiation, and download the full numeric CSV. All other assumptions remain fixed at the model baseline. Plot lines are scaled separately: never infer that visually coincident line heights indicate identical units or magnitudes.
+
+Run both suites locally with `npm test`. The model and experiments are deterministic; no stochastic confidence intervals are implied by a parameter sweep.
